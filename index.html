@@ -7,27 +7,32 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
-/* VOICE: 真面目だけど堅すぎない、大学生が作った啓発ゲーム
-   IDEA: スマホの画面そのもの。求人投稿のタイムラインとDMの画面
-   PICTURE: 投稿カードとチャット画面が主役。最初の画面から操作できる
-   COLOUR and TYPE: 白と黒、危ないサインだけ警告の赤。Zen Kaku Gothic New
-   LAYOUT: スマホ幅の1列。上に進み具合のバー */
-:root{color-scheme:light dark;--bg:light-dark(#ffffff,#0e0e0e);--ink:light-dark(#141414,#f2f2f2);--sub:light-dark(#5f5f5f,#a8a8a8);--line:light-dark(#e3e3e3,#2a2a2a);--card:light-dark(#f6f6f6,#1a1a1a);--red:#e4002b;--ok:light-dark(#0a6b3d,#4fd18f);--me:light-dark(#141414,#f2f2f2);--meInk:light-dark(#fff,#111)}
+/* VOICE: 真面目だけど堅すぎない、大学生が作った啓発ゲーム（お金に困っている状況を体験）
+   IDEA: スマホの画面そのもの。求人投稿のタイムラインとDMの画面、割りこむ通知
+   PICTURE: 投稿カードとチャット画面が主役。制限時間のバーと残高表示
+   COLOUR and TYPE: 白と黒、危ないサインと時間だけ警告の赤。Zen Kaku Gothic New
+   LAYOUT: スマホ幅の1列。上に進み具合のバーと残高 */
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#0e0e0e);--ink:light-dark(#141414,#f2f2f2);--sub:light-dark(#5f5f5f,#a8a8a8);--line:light-dark(#e3e3e3,#2a2a2a);--card:light-dark(#f6f6f6,#1a1a1a);--red:#e4002b;--ok:light-dark(#0a6b3d,#4fd18f);--mid:light-dark(#9a6a00,#f0b429);--me:light-dark(#141414,#f2f2f2);--meInk:light-dark(#fff,#111)}
 :root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
 *{box-sizing:border-box;min-width:0}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 "Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",sans-serif;overflow-x:clip}
 .top{position:sticky;top:0;z-index:2;background:var(--bg);border-bottom:3px solid var(--ink);padding:8px max(5vw,16px) 8px}
 .top b{font-weight:900;letter-spacing:.02em}.top small{display:block;color:var(--sub);font-size:13px}
+.top small.money{color:var(--red);font-weight:700}
+.proto{display:inline-block;background:var(--red);color:#fff;font-size:12px;font-weight:700;border-radius:99px;padding:0 8px;margin-left:6px;vertical-align:2px}
 .bar{height:6px;background:var(--line);margin-top:8px;border-radius:3px;overflow:hidden}.bar i{display:block;height:100%;background:var(--red);transition:width .4s}
 main{max-width:480px;margin:0 auto;padding:14px 16px 48px}
 h1{font-size:clamp(24px,6vw,30px);line-height:1.15;font-weight:900;margin:6px 0 10px;text-wrap:balance}
+h1.sm{font-size:clamp(22px,6vw,28px);margin:4px 0 10px}
 h2{font-size:19px;line-height:1.3;font-weight:900;margin:14px 0 6px}
 p{margin:0 0 14px}.sub{color:var(--sub);font-size:14px}
 .tag{display:inline-block;font-size:13px;font-weight:700;color:var(--red);border:1.5px solid var(--red);border-radius:99px;padding:1px 10px}
+.tag.mid{color:var(--mid);border-color:var(--mid)}
 .btn{display:block;width:100%;min-height:48px;margin:8px 0 0;border:2px solid var(--ink);border-radius:14px;background:var(--ink);color:var(--bg);font-family:inherit;font-weight:700;font-size:17px;line-height:1.3;cursor:pointer}
 .btn.ghost{background:transparent;color:var(--ink)}
-.btn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+.btn:focus-visible,input:focus-visible{outline:3px solid var(--red);outline-offset:2px}
 .row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:14px 0 4px}
+.row.six{grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
 .row button{min-height:52px;border:2px solid var(--ink);border-radius:12px;background:transparent;color:var(--ink);font-family:inherit;font-weight:900;font-size:20px;cursor:pointer}
 .row button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
 .ends{display:flex;justify-content:space-between;font-size:13px;color:var(--sub)}
@@ -38,72 +43,73 @@ p{margin:0 0 14px}.sub{color:var(--sub);font-size:14px}
 .post .txt{white-space:pre-wrap;margin:0}
 .search{font-size:13px;color:var(--sub);border:1px solid var(--line);border-radius:99px;padding:6px 14px;margin-bottom:8px}
 .res{border-left:4px solid var(--ok);padding:8px 12px;margin:10px 0;background:var(--card);border-radius:0 10px 10px 0}
-.res.bad{border-color:var(--red)}
-.chat{border:1px solid var(--line);border-radius:18px;padding:10px;background:var(--card);min-height:0;display:flex;flex-direction:column;gap:6px}
+.res.bad{border-color:var(--red)}.res.mid{border-color:var(--mid)}
+.chat{border:1px solid var(--line);border-radius:18px;padding:10px;background:var(--card);display:flex;flex-direction:column;gap:6px;margin:6px 0}
 .chat .head{font-size:13px;color:var(--sub);text-align:center;border-bottom:1px solid var(--line);padding-bottom:8px}
 .msg{max-width:85%;padding:6px 11px;line-height:1.5;border-radius:16px;background:var(--bg);border:1px solid var(--line);align-self:flex-start;white-space:pre-wrap;animation:pop .35s ease-out both}
 .msg.me{align-self:flex-end;background:var(--me);color:var(--meInk);border-color:var(--me)}
 .msg.sys{align-self:center;background:transparent;border:0;color:var(--sub);font-size:13px}
 @keyframes pop{from{opacity:0;transform:translateY(8px)}}
-@media(prefers-reduced-motion:reduce){.msg{animation:none}.bar i{transition:none}}
+.timer{margin:10px 0 2px}.timer .t{display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:var(--red)}
+.timer .tb{height:8px;background:var(--line);border-radius:4px;overflow:hidden}.timer .tb i{display:block;height:100%;width:100%;background:var(--red)}
+.toast{position:fixed;left:50%;top:84px;transform:translateX(-50%);width:min(440px,calc(100% - 20px));z-index:5;background:var(--red);color:#fff;border-radius:16px;padding:12px 14px;box-shadow:0 10px 30px rgba(0,0,0,.35);font-size:16px;font-weight:700;line-height:1.45;display:flex;gap:10px;align-items:center;animation:drop .35s ease-out both,shake .5s .35s ease-in-out}
+.toast .ic{flex:none;width:36px;height:36px;border-radius:10px;background:#fff;color:var(--red);display:grid;place-items:center}
+.toast b{display:block;font-size:13px;font-weight:700;opacity:.9}
+@keyframes drop{from{opacity:0;transform:translate(-50%,-16px)}}
+@keyframes shake{0%,100%{transform:translateX(-50%)}25%{transform:translateX(calc(-50% - 6px))}75%{transform:translateX(calc(-50% + 6px))}}
+.status{border:2px solid var(--red);border-radius:16px;padding:12px 14px;margin:10px 0}.status .big{font-size:36px;font-weight:900;line-height:1.1;color:var(--red)}
+@media(prefers-reduced-motion:reduce){.msg,.toast{animation:none}.bar i{transition:none}}
 .stop{background:var(--red);color:#fff;border-radius:20px;padding:28px 20px;text-align:center}
 .stop h1{color:#fff;font-size:clamp(36px,10vw,52px);margin:0 0 10px}
 .signs{list-style:none;padding:0;margin:0;counter-reset:s}
-.signs li{counter-increment:s;padding:12px 0 12px 44px;position:relative;border-top:1px solid var(--line)}
-.signs li::before{content:counter(s);position:absolute;left:0;top:12px;width:30px;height:30px;border-radius:50%;background:var(--red);color:#fff;display:grid;place-items:center;font-weight:900}
-.signs small{display:block;color:var(--sub);font-size:13px}
+.signs li{counter-increment:s;padding:6px 0 6px 34px;position:relative;border-top:1px solid var(--line);font-size:14px;line-height:1.45}
+.signs li::before{content:counter(s);position:absolute;left:0;top:7px;width:24px;height:24px;border-radius:50%;background:var(--red);color:#fff;display:grid;place-items:center;font-weight:900;font-size:13px}
+.signs small{color:var(--sub);font-size:13px}
 .call{border:3px solid var(--ink);border-radius:18px;padding:16px;text-align:center;margin:20px 0}
 .call strong{display:block;font-size:44px;font-weight:900;line-height:1.1}
-.cmp{display:grid;gap:12px;margin:16px 0}
+.call.sm{padding:10px 12px;margin:12px 0;font-size:14px}
+.cmp{display:grid;gap:6px;margin:8px 0}
 .cmp .lab{display:flex;justify-content:space-between;font-weight:700}
-.meter{height:22px;background:var(--line);border-radius:6px;overflow:hidden}.meter i{display:block;height:100%;background:var(--ink)}
+.meter{height:12px;background:var(--line);border-radius:6px;overflow:hidden}.meter i{display:block;height:100%;background:var(--ink)}
 .meter.after i{background:var(--red)}
-.score{font-size:15px;border-top:1px solid var(--line);padding-top:12px}
-fieldset{border:0;padding:0;margin:0 0 20px}legend{font-weight:700;margin-bottom:6px}
-.opt{display:flex;align-items:center;gap:10px;min-height:44px;border:1px solid var(--line);border-radius:10px;padding:6px 12px;margin:6px 0;cursor:pointer}
-.opt input{width:20px;height:20px;accent-color:var(--red)}
-textarea{width:100%;min-height:96px;font-family:inherit;font-size:16px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
-.note{font-size:13px;color:var(--sub);border-top:1px solid var(--line);margin-top:28px;padding-top:12px}
-.note a{color:inherit}
+.score{font-size:14px;border-top:1px solid var(--line);padding-top:8px}.score p{margin:0 0 4px}
+.tally{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:8px 0}
+.tally div{border:2px solid var(--ok);border-radius:12px;text-align:center;padding:6px 4px;font-size:13px;font-weight:700}
+.tally div.mid{border-color:var(--mid)}.tally div.bad{border-color:var(--red)}
+.tally strong{display:block;font-size:26px;font-weight:900;line-height:1.1}
+.note{font-size:13px;color:var(--sub);border-top:1px solid var(--line);margin-top:12px;padding-top:8px}
+.note a{color:inherit}.note summary{cursor:pointer;min-height:32px;line-height:32px}
 .grid4{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0}.grid4 .btn{margin:0;font-size:22px;font-weight:900}
 .btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}.btn.ng{background:var(--red);border-color:var(--red);color:#fff}
-.list{margin:0;padding-left:1.2em}.list li{margin:4px 0}
-h1.sm{font-size:clamp(22px,6vw,28px);margin:4px 0 10px}
-h2.sm{font-size:18px;margin:12px 0 4px}p.sm{font-size:14px;margin:0 0 6px}
-.signs.mini li{padding:6px 0 6px 34px;font-size:14px;line-height:1.45}
-.signs.mini li::before{width:24px;height:24px;top:7px;font-size:13px}
-.signs.mini small{display:inline;font-size:13px}
-.call.sm{padding:10px 12px;margin:12px 0;font-size:14px}
-.cmp.sm{gap:6px;margin:8px 0}.cmp.sm .meter{height:12px}
-.score.sm{padding-top:8px;font-size:14px}.score.sm p{margin:0 0 4px}
-.res.sm{font-size:14px;margin:8px 0;padding:6px 10px}
-.btn.sm{min-height:44px;font-size:15px;margin-top:8px}
-.note.sm{margin-top:12px;padding-top:8px}.note summary{cursor:pointer;min-height:32px;line-height:32px}
+.team{border:1px dashed var(--sub);border-radius:12px;padding:8px 12px;margin:14px 0 0;font-size:14px}
+.team label{display:flex;gap:10px;align-items:center;min-height:40px;cursor:pointer}
+.team input{width:20px;height:20px;accent-color:var(--red);flex:none}
 </style>
 </head>
 <body>
-<header class="top"><b>#その求人ちょっと待って</b><small>体験ゲーム</small><div class="bar"><i id="bar" style="width:0"></i></div></header>
+<header class="top"><b>#その求人ちょっと待って</b><small id="sub">体験ゲーム</small><div class="bar"><i id="bar" style="width:0"></i></div></header>
 <main id="app" aria-live="polite"></main>
 <script>
 {
-const app=document.getElementById('app'),bar=document.getElementById('bar');
-const FORM='https://docs.google.com/forms/d/e/1FAIpQLSfKvUGLkZ1FS5RbYcP6ObIqOHp37CZtD8v2xOESVr6NwA9BOg/viewform';
-const ENTRY={c1:'entry.1183225595',c2:'entry.14963148',route:'entry.1961824636',correct:'entry.349773653',recall:'entry.1557606166'};
-const S={c1:0,c2:0,i:0,correct:0,out:[],recall:null,timers:[]};
-const reset=()=>Object.assign(S,{c1:0,c2:0,i:0,correct:0,out:[],recall:null});
+const app=document.getElementById('app'),bar=document.getElementById('bar'),sub=document.getElementById('sub');
+const SEC1=15,SEC2=8;
+const FORM='https://docs.google.com/forms/d/e/1FAIpQLSezeiJF_uL1vCMm8Bz061tjFvdyhT5GGn6QwkdPwrNiO74xRg/viewform';
+const ENTRY={id:'entry.1856263287',c1:'entry.1183225595',c2:'entry.14963148',correct:'entry.349773653',mid:'entry.1548624731',guess:'entry.314825927',bad:'entry.1567730557',detail:'entry.826864213',recall:'entry.1557606166'};
+/* アンケートに答えない人の分も残すため、結果画面で記録用フォームに送る */
+const REC='https://docs.google.com/forms/d/e/1FAIpQLSfn8_PufbLaJ_wUGaHAb81s3UMfPS1lbEi-qbLbFkwduhCPnQ/formResponse';
+const RECE={id:'entry.952561985',c1:'entry.1505068340',c2:'entry.772195784',guess:'entry.1379282248',correct:'entry.704959371',mid:'entry.1962248973',bad:'entry.1901478644',detail:'entry.1387904563',recall:'entry.1545573459'};
+const newId=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const S={id:'',sent:false,c1:0,c2:0,guess:null,i:0,correct:0,out:[],rushed:[],recall:null,timers:[]};
+const reset=()=>Object.assign(S,{id:'',sent:false,c1:0,c2:0,guess:null,i:0,correct:0,out:[],rushed:[],recall:null});
 
-/* 判別クイズ。danger:true は闇バイト。hold は「一旦保留」を選んだときの続き。end は応募したときの結末 */
+/* 判別クイズ。danger:true は闇バイト。rush は時間切れのときに来る急かしのDM。end は応募したときの結末
+ */
 const Q=[
- {kind:'x',name:'○○スタッフサービス株式会社 名古屋支店',id:'@maru_staff_nagoya',av:'派',
-  text:'【即日勤務OK】イベント設営スタッフ急募！\n日給15,000円・当日現金払いOK\n未経験でもすぐ稼げます\n面接なし、登録会に来るだけ！\nお問い合わせはDMでも受付中です\n#日払い #高日給 #学生歓迎',
-  danger:false,
-  why:'「即日」「現金払い」「DMで受付」と怪しく見えるけど、会社名がはっきりしていて、登録会で実際に会う。保留して会社を調べれば、本物だと確かめられた。',
-  hold:{msg:'会社名で調べてみたら、公式サイトに名古屋駅前の支店の住所が載っていて、登録会も支店で行うと書いてあった。',ask:'どうする？'}},
  {kind:'search',q:'在宅 事務 バイト 大学生',name:'リモートワーク求人まとめ',id:'@remote_jimu_job',av:'事',
   text:'【在宅・業務委託】経理アシスタント\n時給1,400円／未経験OK・研修動画あり\n主なお仕事：取引先からの入金確認、振込手続き、帳簿への入力\n※業務にはご本人名義の銀行口座を使用します\n面接はオンラインで15分',
   danger:true,
   why:'経理の仕事に見えるけど、「ご本人名義の銀行口座を使用」とあるとおり、自分の口座でお金を受け取って別の口座へ送らせる「送金代行」。他人に頼まれて振込を代行することは犯罪にあたる。',
-  hold:{dm:['ほかにも応募が来ています。','今日中にお返事がない場合、枠がなくなります！'],ask:'どうする？'},
+  rush:['ほかにも応募が来ています。','今日中にお返事がない場合、枠がなくなります！'],
   end:{label:'口座',
    dm:['ご応募ありがとうございます！','お仕事で使う口座の確認のため、キャッシュカードの写真とネットバンキングのIDを送ってください。'],
    yes:'カードの写真とIDを送る',no:'口座の情報は送れないので、やめる',
@@ -113,101 +119,142 @@ const Q=[
   text:'【業務委託】書類の配達スタッフ\n1件1,500円／交通費支給・研修あり\nお客様からお預かりした書類を、指定の場所へお届けするお仕事です\n週1日・1件からOK。学生さんも活躍中！',
   danger:true,dmJudge:true,
   why:'投稿はふつうの求人でも、応募後のDMで会社の人に会わないまま身分証と顔写真を求められ、封筒の中身も確かめさせない。正規の求人サイトの運搬の仕事が、受け子だった事例もある（茨城県警察）。',
-  hold:{dm:['明日の現場がひとつ空いています。','今日中に決めてもらえたら、すぐ入れますよ！'],ask:'どうする？'},
+  rush:['明日の現場がひとつ空いています。','今日中に決めてもらえたら、すぐ入れますよ！'],
   end:{label:'受け子',
    dm:['ご応募ありがとうございます！','面接はオンラインで行います。','研修の前に本人確認をします。身分証と顔写真を送ってください。','お届けする封筒にはお客様の個人情報が入っているため、開けずにそのままお届けください。'],
    yes:'身分証と顔写真を送る',no:'なんかおかしい。やめておく',
    story:[{s:'them',t:'確認しました。明日、お客様の家で封筒を受け取ってください。'},{s:'sys',t:'封筒の中身は、だまし取られたキャッシュカードだった'},{s:'me',t:'これ詐欺ですよね？もうやめたいです。'},{s:'them',t:'身分証で住所はわかってるよ。\n家族のところに行くことになるけど、いいの？'},{s:'sys',t:'報酬は「あとでまとめて払う」と言われたまま、一円ももらえなかった'},{s:'sys',t:'断れずに何度もやらされ、最後は逮捕された'}],
    fact:'受け子は詐欺の実行役。送った身分証をもとに「家に行く」「家族に危害を加える」と脅され、逮捕されるまでやめられない（警視庁）。犯罪をしても、約束した報酬が支払われないこともある（警察庁）。'}},
- {kind:'x',name:'スロ専 打ち子募集',id:'@uchiko_nagoya',av:'打',
-  text:'パチンコ・スロットの打ち子募集！\n軍資金はこちらで用意、勝っても負けても日給1万円\n名古屋近郊で週1〜OK　詳細はDMで',
+ {kind:'x',name:'○○スタッフサービス株式会社 名古屋支店',id:'@maru_staff_nagoya',av:'派',
+  text:'【イベント設営スタッフ募集】\n日給12,000円（給料は翌月末払い）\n未経験OK・当日は社員がサポートします\n登録会：来週火曜 名古屋駅前支店\n（名古屋市中村区名駅〇丁目〇-〇）\n公式サイトから応募受付中\n#学生歓迎 #単発OK',
+  danger:false,
+  holdMsg:'会社名で調べてみたら、公式サイトに名古屋駅前の支店の住所が載っていて、登録会も支店で行うと書いてあった。',
+  why:'会社名と支店の住所がはっきりしていて、登録会で社員に会える。DMで急かしてもこない。本物の求人だった。ただ、給料は翌月末で、登録会も来週。今すぐお金がほしいときほど、こういう求人が遠回りに見えてしまう。'},
+ {kind:'x',name:'まちねこ調査プロジェクト',id:'@machineko_survey',av:'猫',
+  text:'【夜の猫の調査スタッフ募集】\n地域で夜に活動する猫の数を調べるお仕事です\n1回3時間・7,500円（1:30〜4:30）\n決められたルートを歩いて、見かけた猫を地図に記録します\n研修動画あり・未経験の方も安心\n※調査データ管理のため、作業中は私物をお預かりします\nマニュアルどおりに動ける方歓迎\n#単発 #動物好き歓迎 #未経験OK',
   danger:true,
-  why:'打ち子の仕事そのものより、募集が「おとり」に使われるのが危ない。「打ち子は定員いっぱい、ほかの仕事がある」と言って闇バイトに誘導する手口がある。',
-  hold:{dm:['残り1枠です！','早い者勝ちなので、気になるならすぐ連絡ください。'],ask:'どうする？'},
-  end:{label:'別アプリへの誘導',
-   dm:['ご連絡ありがとうございます！','すみません、打ち子は定員になってしまいました。代わりに、もっと稼げる仕事があります。詳しくはテレグラムで説明しますね。'],
-   yes:'テレグラムに移って話を聞く',no:'別の仕事ならやめておく',
-   story:[{s:'sys',t:'テレグラムに移動しました'},{s:'them',t:'登録のため、身分証と顔写真を送ってください。'},{s:'me',t:'（送信）'},{s:'them',t:'仕事は、指定の家に行って荷物を受け取るだけです。'},{s:'me',t:'やっぱり怪しいので、やめます。'},{s:'them',t:'もう個人情報はもらってるよ。\nやめられると思ってる？'}],
-   fact:'「打ち子募集」がおとりで、別の仕事として闇バイトに誘導される手口がある（INTERNET Watch）。匿名性の高いアプリに誘導され、身分証などを送ると脅されて断れない状況にされる（警察庁、政府広報オンライン）。'}},
+  why:'動物の調査に見えるけど、夜中の1時半から4時半に、決められたルートを歩いて地図に記録させ、作業中は私物まで預かる。時給にすると2,500円。実際は、空き巣や強盗に入る家を調べる「下見役」だった。',
+  rush:['今夜のルート、まだ担当が決まっていません。','今日中にお返事をもらえたら、今夜から入れます！'],
+  end:{label:'下見',
+   dm:['ご応募ありがとうございます！','登録のため、身分証と顔写真を送ってください。','当日はスマホをお預かりします。こちらで用意した端末で、猫を見かけた家の番地と、窓の明かりや車があるかどうかも記録してください。'],
+   yes:'身分証と顔写真を送る',no:'猫の調査なのに家のことまで記録するのはおかしい。やめておく',
+   story:[{s:'them',t:'今夜のルートです。端末の地図のとおりに歩いてください。'},{s:'sys',t:'猫よりも、家の明かりや車のことばかり記録させられた'},{s:'me',t:'これ、何に使うんですか？'},{s:'them',t:'余計なことは考えなくていい。'},{s:'sys',t:'数日後、記録した家のひとつに強盗が入ったとニュースになった'},{s:'me',t:'もうやめます。'},{s:'them',t:'身分証もあるし、お前が記録したデータもある。\n逃げられないから。'},{s:'sys',t:'下見役として逮捕された'}],
+   fact:'住宅強盗や特殊詐欺では、闇バイトに応募したとみられる者が実行犯になっていて、周囲の写真を撮る、落ち着きなく周りを見回すといった「下見」とみられる不審な行動に注意が呼びかけられている（愛知県警察）。やめたいと言うと「自宅に押し掛ける」などと脅され、抜けられなくなる（茨城県警察）。'}},
  {kind:'x',name:'セキュリティスタッフ募集',id:'@security_staff_ngy',av:'警',
   text:'【即日OK】マンションの見守りスタッフ（警備）\n日給15,000円／研修なし・未経験歓迎\n入口で来訪者を確認するだけのかんたんなお仕事\n男女ともに活躍中！\n現場の住所は当日DMでお伝えします',
   danger:true,
   why:'警備の仕事に見えるけど、「研修なし」で、現場の住所も当日まで教えない。本物の警備会社なら、働く前に研修がある。実際は強盗の見張り役だった。',
-  hold:{dm:['今夜の現場、まだ1人足りていません。','今すぐ返事をくれたら、すぐ入れます！']},
+  rush:['今夜の現場、まだ1人足りていません。','今すぐ返事をくれたら、すぐ入れます！'],
   end:{label:'見張り',
    dm:['ご応募ありがとうございます！','登録のため、身分証と顔写真を送ってください。現場の住所は当日お送りします。'],
    yes:'身分証と顔写真を送る',no:'研修もないし、やめておく',
    story:[{s:'them',t:'今日の現場です。マンションの入口で、人が来たら連絡してください。'},{s:'sys',t:'入口で見ていたら、仲間らしい人たちがマンションの一室に入っていった'},{s:'sys',t:'翌日、その部屋で強盗事件があったとニュースになった'},{s:'me',t:'こんなこと聞いてない。もうやめます。'},{s:'them',t:'見張りも仲間だよ。\n身分証もあるし、逃げられないから。'},{s:'sys',t:'約束の日給15,000円は、結局払われなかった'},{s:'sys',t:'見張り役として逮捕された'}],
    fact:'本物の警備の仕事なら、働く前に研修がある（一般の警備員で20時間。愛知県警察）。強盗で人が亡くなれば、見張り役でも同じ罪になる（警察庁）。'}}
 ];
+/* 問題を見ている途中に割りこむ通知（問題ごとに1つ） */
+const NOTE=[{from:'カード会社',t:'お支払い期限は明日です。'},{from:'大家さん',t:'今月の家賃の振込、まだ確認できていません。'},{from:'みさき',t:'今週の飲み会来るよね？会費4,000円！'},{from:'携帯会社',t:'料金のお支払いが確認できていません。'},{from:'銀行',t:'口座の残高が少なくなっています。'},{from:'お母さん',t:'今月の仕送り、少し遅れそう。ごめんね'}];
 const VIDEO=[{s:'sys',t:'テレグラムに移動しました'},{s:'them',t:'本人確認のため、身分証と顔写真を送ってください。'},{s:'me',t:'（身分証と顔写真を送信）'},{s:'them',t:'確認しました。明日、指定の場所で荷物を受け取ってください。'},{s:'me',t:'やっぱり怖いので、やめたいです。'},{s:'them',t:'身分証で住所はわかってるよ。\n家に行くことになるけど、いいの？'},{s:'sys',t:'ここから抜け出すのは、とても難しい'}];
 const NUMS=['#9101','#9110','#1190','#9910'];
+/* 結果の分け方。正解／迷った／不正解 */
+const LAB={ok:'正解',timeout:'時間切れ',back:'応募しかけた',miss:'不正解',fell:'進んでしまった'};
+const KIND={ok:'ok',timeout:'mid',back:'mid',miss:'bad',fell:'bad'};
 
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const bubbles=l=>l.map(m=>`<div class="msg ${m.s==='me'?'me':m.s==='sys'?'sys':''}">${esc(m.t)}</div>`).join('');
 const post=q=>`${q.kind==='search'?`<div class="search">検索：${esc(q.q)}</div>`:''}<article class="post"><div class="who"><div class="av">${q.av}</div><div><b>${esc(q.name)}</b><span>${esc(q.id)}</span></div></div><p class="txt">${esc(q.text)}</p></article>`;
+const P=i=>14+Math.round(i*62/Q.length);
 const $=s=>app.querySelector(s);
-const goEnd=el=>{if(!el)return;const r=matchMedia('(prefers-reduced-motion: reduce)').matches;el.scrollIntoView({block:'end',behavior:r?'auto':'smooth'})};
-function clear(){S.timers.forEach(clearTimeout);S.timers=[]}
+const reduce=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
+const goEnd=el=>{if(!el)return;el.scrollIntoView({block:'end',behavior:reduce()?'auto':'smooth'})};
+const count=k=>S.out.filter(o=>KIND[o]===k).length;
+function clear(){S.timers.forEach(t=>{clearTimeout(t);clearInterval(t)});S.timers=[];document.querySelectorAll('.toast').forEach(t=>t.remove())}
 function set(p,html){clear();bar.style.width=p+'%';app.innerHTML=html;window.scrollTo(0,0)}
-function scale(label,next){return `<p>${label}</p><div class="row" role="group" aria-label="自信の度合い">${[1,2,3,4,5].map(n=>`<button data-n="${n}" aria-pressed="false">${n}</button>`).join('')}</div><div class="ends"><span>まったくない</span><span>すごくある</span></div><button class="btn" id="next" disabled>${next}</button>`}
-function bindScale(key,onNext){const b=[...app.querySelectorAll('.row button')],nx=$('#next');b.forEach(x=>x.onclick=()=>{b.forEach(y=>y.setAttribute('aria-pressed','false'));x.setAttribute('aria-pressed','true');S[key]=+x.dataset.n;nx.disabled=false});nx.onclick=onNext}
-function play(box,list,done){const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;list.forEach((m,k)=>S.timers.push(setTimeout(()=>{box.insertAdjacentHTML('beforeend',bubbles([m]));goEnd(box.lastElementChild);if(k===list.length-1)done()},reduce?0:900+k*1400)))}
+function pick(nums,cls,aria,label,ends,next){return `<p>${label}</p><div class="row ${cls}" role="group" aria-label="${aria}">${nums.map(n=>`<button data-n="${n}" aria-pressed="false">${n}</button>`).join('')}</div>${ends}<button class="btn" id="next" disabled>${next}</button>`}
+const scale=(label,next)=>pick([1,2,3,4,5],'','自信の度合い',label,'<div class="ends"><span>まったくない</span><span>すごくある</span></div>',next);
+function bindPick(key,onNext){const b=[...app.querySelectorAll('.row button')],nx=$('#next');b.forEach(x=>x.onclick=()=>{b.forEach(y=>y.setAttribute('aria-pressed','false'));x.setAttribute('aria-pressed','true');S[key]=+x.dataset.n;nx.disabled=false});nx.onclick=onNext}
+function play(box,list,done){list.forEach((m,k)=>S.timers.push(setTimeout(()=>{box.insertAdjacentHTML('beforeend',bubbles([m]));goEnd(box.lastElementChild);if(k===list.length-1)done()},reduce()?0:900+k*1400)))}
+function nextBtn(){const nx=document.createElement('button');nx.className='btn';nx.textContent=S.i<Q.length-1?'次の問題へ':'結果へ';nx.onclick=()=>S.i<Q.length-1?quiz(S.i+1):afterQuiz();app.appendChild(nx);nx.focus({preventScroll:true});goEnd(nx)}
+function strip(){app.querySelectorAll('#timer,#a,#p').forEach(b=>b.remove())}
+
+/* 制限時間と通知 */
+function startTimer(sec,onEnd){const box=$('#timer');if(!box)return;const lab=box.querySelector('.left'),bi=box.querySelector('.tb i'),start=Date.now();
+ const tick=()=>{const left=Math.max(0,sec-(Date.now()-start)/1000);lab.textContent=`あと${Math.ceil(left)}秒`;bi.style.width=(left/sec*100)+'%';if(left<=0){clearInterval(id);onEnd()}};
+ const id=setInterval(tick,100);S.timers.push(id);tick()}
+function toast(n){const d=document.createElement('div');d.className='toast';d.setAttribute('role','status');d.innerHTML=`<span class="ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22a2.5 2.5 0 0 0 2.4-2h-4.8A2.5 2.5 0 0 0 12 22zm7-6V11a7 7 0 0 0-5.5-6.8V3a1.5 1.5 0 0 0-3 0v1.2A7 7 0 0 0 5 11v5l-2 2v1h18v-1z"/></svg></span><span><b>${esc(n.from)}</b>${esc(n.t)}</span>`;document.body.appendChild(d);S.timers.push(setTimeout(()=>d.remove(),4500))}
+const timerBox=lab=>`<div class="timer" id="timer"><div class="t"><span>${lab}</span><span class="left"></span></div><div class="tb"><i></i></div></div>`;
 
 function reveal(){
- set(4,`<span class="tag">はじめに</span><h1>その求人、大丈夫？</h1><p>SNSや検索で見つけた求人を見ながら、「応募する／一旦保留する／やめておく」を選んでいくゲームです。闇バイトを見抜けるか、試してみてください。</p><div class="call">怪しいと思ったら、ここに相談<strong>#9110</strong>警察相談専用電話</div><button class="btn" id="go">ゲームをはじめる</button>`);
- $('#go').onclick=conf1}
-function conf1(){set(10,`<span class="tag">はじめに</span><h1>あなたは闇バイトを見抜ける自信がある？</h1>${scale('1〜5で選んでね','判別クイズをはじめる')}`);bindScale('c1',()=>quiz(0))}
+ sub.textContent='体験ゲーム';sub.className='';
+ set(3,`<span class="tag">はじめに</span><h1>その求人、大丈夫？</h1><p>SNSや検索で見つけた求人を見ながら、制限時間内に「応募する／やめておく」を選んでいくゲームです。お金に困っている状況のつもりで、闇バイトを見抜けるか試してみてください。</p><div class="call">怪しいと思ったら、ここに相談<strong>#9110</strong>警察相談専用電話</div><button class="btn" id="go">ゲームをはじめる</button>`);
+ $('#go').onclick=()=>{S.id=newId();S.sent=false;conf1()}}
+function conf1(){set(6,`<span class="tag">はじめに</span><h1>あなたは闇バイトを見抜ける自信がある？</h1>${scale('1〜5で選んでね','次へ')}`);bindPick('c1',guess)}
+/* 最初に何問正解できるか予想してもらう */
+function guess(){set(9,`<span class="tag">はじめに</span><h1>${Q.length}問のうち、何問正解できると思う？</h1>${pick([0,1,2,3,4,5],'six','正解数の予想','予想を選んでね','<p class="sub">「応募してみる」を押したら、あとで引き返しても正解にはならないよ。</p>','次へ')}`);bindPick('guess',status)}
+function status(){
+ set(11,`<span class="tag">あなたの状況</span><h1>今のあなたは、こんな状況。</h1><div class="status"><div class="sub">口座の残高</div><div class="big">3,200円</div></div><p>家賃の支払いまで、あと5日。スマホ代もまだ払えていない。</p><p class="sub">この状況のつもりで、求人を見ていってね。時間内に選ばないと、募集は締め切られてしまうよ。</p><button class="btn" id="go">求人を見る</button>`);
+ sub.textContent='残高 3,200円｜家賃の支払いまであと5日';sub.className='money';
+ $('#go').onclick=()=>quiz(0)}
 
 function quiz(i){S.i=i;const q=Q[i];
- set(12+i*13,`<span class="tag">判別クイズ ${i+1} / ${Q.length}</span><h1>この求人、どうする？</h1>${post(q)}<button class="btn" id="a">応募してみる</button><button class="btn ghost" id="h">一旦保留する</button><button class="btn ghost" id="p">やめておく</button>`);
- $('#a').onclick=()=>answer(true);$('#p').onclick=()=>answer(false);$('#h').onclick=()=>hold(i)}
-function hold(i){const q=Q[i];
- if(!q.danger){
-  set(15+i*13,`<span class="tag">判別クイズ ${i+1} / ${Q.length}・保留中</span><h1>少し調べてみた。</h1>${post(q)}<div class="res">${esc(q.hold.msg)}</div><h2>${q.hold.ask}</h2><button class="btn" id="a">応募する</button><button class="btn ghost" id="p">応募しない</button>`);
-  $('#a').onclick=()=>answer(true,true);$('#p').onclick=()=>answer(false,true);return}
- set(15+i*13,`<span class="tag">判別クイズ ${i+1} / ${Q.length}・保留中</span><h1>保留中にDMが来た。</h1><div class="chat"><div class="head">DM　${esc(q.name)}</div>${bubbles(q.hold.dm.map(t=>({s:'them',t})))}</div><h2>どうする？</h2><button class="btn" id="a">応募する</button><button class="btn ghost" id="p">応募しない</button>`);
- $('#a').onclick=()=>q.dmJudge?dm(i):fall(i);$('#p').onclick=()=>answer(false,true)}
-function answer(apply,held){const q=Q[S.i];
- if(q.danger&&apply){dm(S.i);return}
- const right=q.danger!==apply;if(right)S.correct++;S.out[S.i]=right?'ok':'miss';
+ set(P(i),`<span class="tag">判別クイズ ${i+1} / ${Q.length}</span><h1>この求人、どうする？</h1>${post(q)}<div id="rush"></div>${timerBox('考える時間')}<button class="btn" id="a">応募してみる</button><button class="btn ghost" id="p">やめておく</button>`);
+ $('#a').onclick=()=>answer(true);$('#p').onclick=()=>answer(false);
+ S.timers.push(setTimeout(()=>toast(NOTE[i%NOTE.length]),3000));
+ startTimer(SEC1,()=>q.danger?rush(i):closed(i))}
+function rush(i){const q=Q[i];S.rushed[i]=true;
+ $('#rush').innerHTML=`<div class="chat"><div class="head">DM　${esc(q.name)}</div>${bubbles(q.rush.map(t=>({s:'them',t})))}</div>`;
+ $('#timer .t span').textContent='急かされている';goEnd($('#p'));
+ startTimer(SEC2,()=>closed(i))}
+function closed(i){const q=Q[i];clear();S.out[i]='timeout';strip();
+ const box=document.createElement('div');box.className='res mid';
+ box.innerHTML=q.danger?`<b>時間切れ。募集は締め切られました。（迷った）</b><br>急かされて焦った？「今日中に」「残り1枠」と急かすのは、考える時間をなくすための相手の作戦。<br><br>${esc(q.why)}`:`<b>時間切れ。募集は締め切られました。（迷った）</b><br>この求人は、DMで急かしてこなかったよね。${esc(q.why)}`;
+ app.appendChild(box);nextBtn()}
+function answer(apply){const i=S.i,q=Q[i];clear();strip();
+ if(q.danger&&apply){dm(i);return}
+ const right=q.danger!==apply;
+ S.out[i]=right?'ok':'miss';if(S.out[i]==='ok')S.correct++;
  const box=document.createElement('div');box.className='res'+(right?'':' bad');
- box.innerHTML=`<b>${right?'○ 正解！':'× 不正解…実はこれ、普通の求人だった。'}</b><br>${esc(q.why)}${held&&q.danger?'<br><br>「今日中に」と急かされても、決める前に家族や友だちに相談していい。':''}${q.dmJudge&&right?'<br><br>この求人は、投稿だけでは見分けにくいように作ってあった。怪しいサインは、応募したあとのDMで初めて出てくる。':''}`;
- app.querySelectorAll('#a,#h,#p').forEach(b=>b.remove());app.appendChild(box);nextBtn()}
-function nextBtn(){const nx=document.createElement('button');nx.className='btn';nx.textContent=S.i<Q.length-1?'次の問題へ':'結果へ';nx.onclick=()=>S.i<Q.length-1?quiz(S.i+1):afterQuiz();app.appendChild(nx);nx.focus({preventScroll:true});goEnd(nx)}
+ const head=right?'○ 正解！':'× 不正解…実はこれ、普通の求人だった。';
+ box.innerHTML=`<b>${head}</b><br>${esc(q.why)}${S.rushed[i]&&q.danger&&right?'<br><br>急かされても、決める前に家族や友だちに相談していい。':''}${q.dmJudge&&right?'<br><br>この求人は、投稿だけでは見分けにくいように作ってあった。怪しいサインは、応募したあとのDMで初めて出てくる。':''}`;
+ app.appendChild(box);nextBtn()}
 
-function dm(i){const e=Q[i].end;
- set(17+i*13,`<span class="tag">判別クイズ ${i+1}・応募した</span><h1>応募したら、返事が来た。</h1><div class="chat"><div class="head">DM</div><div class="msg me">求人を見ました。応募したいです。</div>${bubbles(e.dm.map(t=>({s:'them',t})))}</div><h2>どうする？</h2><button class="btn" id="y">${esc(e.yes)}</button><button class="btn ghost" id="n">${esc(e.no)}</button>`);
+function dm(i){const q=Q[i],e=q.end;
+ set(P(i)+3,`<span class="tag">判別クイズ ${i+1}・応募した</span><h1>応募したら、返事が来た。</h1><div class="chat"><div class="head">DM</div><div class="msg me">求人を見ました。応募したいです。</div>${bubbles(e.dm.map(t=>({s:'them',t})))}</div><h2>どうする？</h2><button class="btn" id="y">${esc(e.yes)}</button><button class="btn ghost" id="n">${esc(e.no)}</button>`);
  $('#y').onclick=()=>fall(i);$('#n').onclick=()=>back(i)}
-function back(i){const q=Q[i],e=q.end;let head;
- if(q.dmJudge){S.correct++;S.out[i]='dmok';head=`<span class="tag">○ 正解！</span><h1>DMで気づけた！</h1><p>${esc(q.why)}</p><p>応募しても、個人情報を送る前なら間に合う。</p>`}
- else{S.out[i]='back';head=`<span class="tag">危なかった</span><h1>危なかった！</h1><p>これは闇バイトの求人だった。${esc(q.why)}</p><p>応募した時点で、相手にはあなたのアカウントが知られている。個人情報を送る前にやめられたのは、ぎりぎりだった。</p>`}
- set(19+i*13,`${head}<h2>もし「${esc(e.yes)}」を選んでいたら…</h2><div class="chat" id="vid"><div class="head">DM</div></div>`);
+/* 応募してからDMで引き返した → 「迷った」 */
+function back(i){const q=Q[i],e=q.end;S.out[i]='back';
+ const head=q.dmJudge
+  ?`<span class="tag mid">△ 迷った</span><h1>DMで気づけた！でも…</h1><p>${esc(q.why)}</p><p>DMで気づけたのはよかった。でも、応募した時点で相手にはあなたのアカウントが知られている。だから今回は「迷った」になる。</p>`
+  :`<span class="tag mid">△ 迷った</span><h1>危なかった！</h1><p>これは闇バイトの求人だった。${esc(q.why)}</p><p>応募した時点で、相手にはあなたのアカウントが知られている。個人情報を送る前にやめられたのは、ぎりぎりだった。</p>`;
+ set(P(i)+6,`${head}<h2>もし「${esc(e.yes)}」を選んでいたら…</h2><div class="chat" id="vid"><div class="head">DM</div></div>`);
  play($('#vid'),e.story,()=>{const f=document.createElement('div');f.className='res bad';f.innerHTML=`<b>あと一歩で、こうなっていた。</b><br>${esc(e.fact)}`;app.appendChild(f);nextBtn()})}
 function fall(i){S.out[i]='fell';const e=Q[i].end;
- set(19+i*13,`<div class="stop"><h1>ストップ！</h1><p>危ないよ。このまま進んだら、闇バイトをすることになるよ。</p></div><h2>この先どうなるか（${esc(e.label)}）</h2><div class="chat" id="vid"><div class="head">DM</div></div>`);
+ set(P(i)+6,`<div class="stop"><h1>ストップ！</h1><p>危ないよ。このまま進んだら、闇バイトをすることになるよ。</p></div><h2>この先どうなるか（${esc(e.label)}）</h2><div class="chat" id="vid"><div class="head">DM</div></div>`);
  play($('#vid'),e.story,()=>{const f=document.createElement('div');f.className='res bad';f.innerHTML=`<b>これは闇バイトの求人だった。</b><br>${esc(Q[i].why)}<br><br>${esc(e.fact)}`;app.appendChild(f);const t=document.createElement('p');t.className='sub';t.textContent='ゲームはまだ続くよ。';app.appendChild(t);nextBtn()})}
 
 function afterQuiz(){
- if(S.out.every(o=>o==='ok'||o==='dmok')){
-  set(76,`<span class="tag">全問正解！</span><h1>もし応募していたら、こうなっていた。</h1><div class="chat" id="vid"><div class="head">テレグラム</div></div>`);
+ if(S.out.every(o=>o==='ok')){
+  set(78,`<span class="tag">全問正解！</span><h1>もし応募していたら、こうなっていた。</h1><div class="chat" id="vid"><div class="head">テレグラム</div></div>`);
   play($('#vid'),VIDEO,()=>{const b=document.createElement('button');b.className='btn';b.textContent='解説へ';b.onclick=explain;app.appendChild(b);goEnd(b)})}
  else explain()}
 function explain(){
- set(80,`<span class="tag">解説</span><h1 class="sm">闇バイトの危ないサイン</h1><ul class="signs mini"><li>「高額」「即日即金」など、楽に稼げることを強調する<small>（警察庁）</small></li><li>シグナルやテレグラムなど、匿名性の高いアプリに誘導する<small>（警察庁）</small></li><li>面接が通話だけで、会社の人に会わない<small>（茨城県警察）</small></li><li>身分証と顔写真を送らせ、脅しに使う<small>（茨城県警察、警視庁）</small></li><li>自分の口座で受け取ったお金を別の口座へ送る「送金代行」は犯罪<small>（イオン銀行、PayPay銀行）</small></li><li>「打ち子募集」など別の募集から誘導される<small>（INTERNET Watch）</small></li><li>「研修なし」の警備など、あるはずの手続きがない。見張りでも強盗と同じ罪になることがある<small>（愛知県警察、警察庁）</small></li></ul><div class="call sm">怪しいと思ったら、<b>最初に見た番号</b>にすぐ相談。家族や友だちに相談するのもOK</div><button class="btn" id="go">次へ</button>`);
+ set(82,`<span class="tag">解説</span><h1 class="sm">闇バイトの危ないサイン</h1><ul class="signs"><li>「高額」「即日即金」など、楽に稼げることを強調する<small>（警察庁）</small></li><li>シグナルやテレグラムなど、匿名性の高いアプリに誘導する<small>（警察庁）</small></li><li>面接が通話だけで、会社の人に会わない<small>（茨城県警察）</small></li><li>身分証と顔写真を送らせ、脅しに使う<small>（茨城県警察、警視庁）</small></li><li>自分の口座で受け取ったお金を別の口座へ送る「送金代行」は犯罪<small>（イオン銀行、PayPay銀行）</small></li><li>夜中に決められたルートを歩かせて家の様子を記録させるなど、「下見」をさせる仕事がある<small>（愛知県警察）</small></li><li>「研修なし」の警備など、あるはずの手続きがない。見張りでも強盗と同じ罪になることがある<small>（愛知県警察、警察庁）</small></li></ul><div class="call sm">怪しいと思ったら、<b>最初に見た番号</b>にすぐ相談。家族や友だちに相談するのもOK</div><button class="btn" id="go">次へ</button>`);
  $('#go').onclick=recall}
 function recall(){
- set(86,`<span class="tag">覚えてる？</span><h1>最初に見た相談先の番号はどれ？</h1><div class="grid4">${NUMS.map(n=>`<button class="btn ghost" data-n="${n}">${n}</button>`).join('')}</div>`);
+ set(88,`<span class="tag">覚えてる？</span><h1>最初に見た相談先の番号はどれ？</h1><div class="grid4">${NUMS.map(n=>`<button class="btn ghost" data-n="${n}">${n}</button>`).join('')}</div>`);
  app.querySelectorAll('.grid4 button').forEach(b=>b.onclick=()=>{S.recall=b.dataset.n==='#9110';app.querySelectorAll('.grid4 button').forEach(x=>{x.disabled=true;if(x.dataset.n==='#9110')x.className='btn ok';else if(x===b)x.className='btn ng'});
   const r=document.createElement('div');r.innerHTML=`<div class="call">${S.recall?'正解！':'正解はこっち'}<strong>#9110</strong>警察相談専用電話<br><small class="sub">怪しい求人に応募してしまったときも、ここに相談できる</small></div>`;app.appendChild(r);
   const nx=document.createElement('button');nx.className='btn';nx.textContent='次へ';nx.onclick=conf2;app.appendChild(nx);nx.focus({preventScroll:true});goEnd(nx)})}
-function conf2(){const n=S.out.filter(o=>o==='back'||o==='fell'||o==='dmok').length;set(92,`<span class="tag">もう1回</span>${n?`<div class="res bad">あなたは${Q.length}問中<b>${n}問</b>で「応募してみる」を押していた。</div>`:''}<h1>今、あなたは闇バイトを見抜ける自信がある？</h1>${scale('1〜5で選んでね','結果を見る')}`);bindScale('c2',compare)}
+function conf2(){const n=S.out.filter(o=>o==='back'||o==='fell').length;
+ set(94,`<span class="tag">もう1回</span>${n?`<div class="res bad">あなたは${Q.length}問中<b>${n}問</b>で「応募してみる」を押していた。</div>`:''}<h1>今、あなたは闇バイトを見抜ける自信がある？</h1>${scale('1〜5で選んでね','結果を見る')}`);bindPick('c2',compare)}
 
-function routeText(){return S.out.includes('fell')?'途中で応募→DMでも進んでしまった':S.out.includes('back')?'途中で応募→DMで引き返せた':S.correct===Q.length?'全問正解':'応募はしなかったが、普通の求人を断った'}
-function formUrl(){const p=new URLSearchParams({usp:'pp_url'});p.set(ENTRY.c1,S.c1);p.set(ENTRY.c2,S.c2);p.set(ENTRY.route,routeText());p.set(ENTRY.correct,S.correct+'問');p.set(ENTRY.recall,S.recall?'正解した':'まちがえた');return FORM+'?'+p.toString()}
+function vals(){return {id:S.id,c1:S.c1,c2:S.c2,guess:S.guess+'問',correct:count('ok')+'問',mid:count('mid')+'問',bad:count('bad')+'問',detail:S.out.map((o,k)=>`${k+1} ${LAB[o]}`).join('／'),recall:S.recall?'正解した':'まちがえた'}}
+function record(){if(S.sent)return;S.sent=true;try{const v=vals(),b=new URLSearchParams();for(const k in RECE)b.set(RECE[k],v[k]);fetch(REC,{method:'POST',mode:'no-cors',body:b}).catch(()=>{})}catch(e){}}
+function formUrl(){const p=new URLSearchParams({usp:'pp_url'});p.set(ENTRY.id,S.id);p.set(ENTRY.c1,S.c1);p.set(ENTRY.c2,S.c2);p.set(ENTRY.guess,S.guess+'問');p.set(ENTRY.correct,count('ok')+'問');p.set(ENTRY.mid,count('mid')+'問');p.set(ENTRY.bad,count('bad')+'問');p.set(ENTRY.detail,S.out.map((o,k)=>`${k+1} ${LAB[o]}`).join('／'));p.set(ENTRY.recall,S.recall?'正解した':'まちがえた');return FORM+'?'+p.toString()}
 function compare(){
- const lab={dmok:'正解',ok:'正解',miss:'不正解',back:'応募しかけた',fell:'進んでしまった'};
- set(100,`<span class="tag">見比べ</span><h1 class="sm">自信はどう変わった？</h1><div class="cmp sm"><div><div class="lab"><span>ゲーム前の自信</span><span>${S.c1} / 5</span></div><div class="meter"><i style="width:${S.c1*20}%"></i></div></div><div><div class="lab"><span>ゲーム後の自信</span><span>${S.c2} / 5</span></div><div class="meter after"><i style="width:${S.c2*20}%"></i></div></div></div><div class="score sm"><p><b>正解 ${S.correct} / ${Q.length}問</b>　相談先の番号：${S.recall?'覚えていた':'まちがえた'}</p><p class="sub">${S.out.map((o,k)=>`${k+1} ${lab[o]}`).join('／')}</p></div><h2 class="sm">アンケートへのご協力をお願いします！</h2><p class="sm">名古屋市の課題解決の参考にさせてください。</p><div class="res sm">ゲームの結果は自動で入力済みです。<b>変更せずに</b>、残りの質問に答えて送信してください。</div><a class="btn" href="${formUrl()}" target="_blank" rel="noopener" style="display:grid;place-items:center;text-decoration:none">アンケートに答える</a><button class="btn ghost sm" id="again">最初からやり直す</button><div class="note sm">投稿や会社名、DMの内容はすべて架空の例。<details><summary>出典を見る</summary><a href="https://www.npa.go.jp/bureau/safetylife/yamibaito/hanzaishaboshu.html">警察庁「犯罪実行者募集情報の特徴」</a>／<a href="https://www.pref.ibaraki.jp/kenkei/a01_safety/youth/documents/2-3nashi.pdf">茨城県警察 資料</a>／<a href="https://www.keishicho.metro.tokyo.lg.jp/kurashi/drug/yami_arbeit/ban_yamiarbeit.html">警視庁「闇バイトは犯罪です」</a>／<a href="https://www.aeonbank.co.jp/crime/account/">イオン銀行</a>／<a href="https://www.paypay-bank.co.jp/security/buysell.html">PayPay銀行</a>／<a href="https://internet.watch.impress.co.jp/docs/column/netliteracy/2057305.html">INTERNET Watch</a>／<a href="https://www.gov-online.go.jp/npa/202411/video-289986.html">政府広報オンライン</a>／<a href="https://www.pref.aichi.jp/police/shinsei/keibi/documents/2019kyouikujikannkaisei.pdf">愛知県警察（警備員教育）</a>／<a href="https://www.npa.go.jp/hakusyo/r07/honbun/html/bbf112000.html">警察白書（令和7年版）</a>／<a href="https://www.pref.aichi.jp/police/anzen/images/siawaseGireisyuu.pdf">警察庁「闇バイトで人生を棒に振らないために」</a></details></div>`);
+ record();
+ const diff=S.correct-S.guess;
+ const gap=diff<0?`予想より<b>${-diff}問</b>少なかった。「自分は大丈夫」と思っていても、焦っていると見抜けないことがある。`:diff>0?`予想より<b>${diff}問</b>多く正解できた！`:'予想どおりだった。';
+ set(100,`<span class="tag">結果</span><h1 class="sm">予想と結果はどうだった？</h1><div class="cmp"><div><div class="lab"><span>予想した正解数</span><span>${S.guess} / ${Q.length}問</span></div><div class="meter"><i style="width:${S.guess/Q.length*100}%"></i></div></div><div><div class="lab"><span>実際の正解数</span><span>${S.correct} / ${Q.length}問</span></div><div class="meter after"><i style="width:${S.correct/Q.length*100}%"></i></div></div></div><div class="res${diff<0?' bad':''}">${gap}</div><div class="tally"><div><strong>${count('ok')}</strong>正解</div><div class="mid"><strong>${count('mid')}</strong>迷った</div><div class="bad"><strong>${count('bad')}</strong>不正解</div></div><p class="sub">${S.out.map((o,k)=>`${k+1} ${LAB[o]}`).join('／')}</p><p class="sub">「迷った」は、時間切れ・応募してからDMで引き返した問題。</p><h2>自信はどう変わった？</h2><div class="cmp"><div><div class="lab"><span>ゲーム前の自信</span><span>${S.c1} / 5</span></div><div class="meter"><i style="width:${S.c1*20}%"></i></div></div><div><div class="lab"><span>ゲーム後の自信</span><span>${S.c2} / 5</span></div><div class="meter after"><i style="width:${S.c2*20}%"></i></div></div></div><div class="score"><p>相談先の番号：${S.recall?'覚えていた':'まちがえた'}</p></div><h2>アンケートへのご協力をお願いします！</h2><p>名古屋市の課題解決の参考にさせてください。</p><div class="res">ゲームの結果は自動で入力済みです。<b>変更せずに</b>、残りの質問に答えて送信してください。</div><a class="btn" href="${formUrl()}" target="_blank" rel="noopener" style="display:grid;place-items:center;text-decoration:none">アンケートに答える</a><button class="btn ghost" id="again">最初からやり直す</button><div class="note">投稿や会社名、DMの内容はすべて架空の例。<details><summary>出典を見る</summary><a href="https://www.npa.go.jp/bureau/safetylife/yamibaito/hanzaishaboshu.html">警察庁「犯罪実行者募集情報の特徴」</a>／<a href="https://www.pref.ibaraki.jp/kenkei/a01_safety/youth/documents/2-3nashi.pdf">茨城県警察 資料</a>／<a href="https://www.keishicho.metro.tokyo.lg.jp/kurashi/drug/yami_arbeit/ban_yamiarbeit.html">警視庁「闇バイトは犯罪です」</a>／<a href="https://www.aeonbank.co.jp/crime/account/">イオン銀行</a>／<a href="https://www.paypay-bank.co.jp/security/buysell.html">PayPay銀行</a>／<a href="https://www.city.aichi-miyoshi.lg.jp/material/files/group/10/chiikianzenR6_news49.pdf">愛知県警察「地域安全ニュース」（みよし市掲載）</a>／<a href="https://www.gov-online.go.jp/npa/202411/video-289986.html">政府広報オンライン</a>／<a href="https://www.pref.aichi.jp/police/shinsei/keibi/documents/2019kyouikujikannkaisei.pdf">愛知県警察（警備員教育）</a>／<a href="https://www.npa.go.jp/hakusyo/r07/honbun/html/bbf112000.html">警察白書（令和7年版）</a>／<a href="https://www.pref.aichi.jp/police/anzen/images/siawaseGireisyuu.pdf">警察庁「闇バイトで人生を棒に振らないために」</a></details></div>`);
  $('#again').onclick=()=>{reset();reveal()}}
 
 reveal();
